@@ -86,8 +86,11 @@ const fetchNotes = async () => {
   });
 };
 function downloadPDF() {
-  
   const data = [];
+  if(Notes.length===0){
+    alert("No notes to export");
+    return;
+  }
   
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
     const doc = new jsPDF();
