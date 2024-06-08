@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import autoTable from 'jspdf-autotable';
+import autoTable from "jspdf-autotable";
 let Notes = [];
 
 const ShowNotesToDOM = () => {
@@ -71,30 +71,45 @@ const ShowNotesToDOM = () => {
     notes_container.appendChild(noteContainer);
   }
 };
+
 const fetchNotes = async () => {
   const data = await chrome.storage.sync.get("Notes");
-  // console.log(data.Notes.Notes);
-  if (data.Notes) Notes = [...Notes, ...data.Notes.Notes];
-  ShowNotesToDOM();
-  return;
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+    const activeTab = tabs[0];
+    if (data.Notes) {
+      const filtered_data = data.Notes.Notes.filter(
+        (n) => n.url === activeTab.url
+      );
+      Notes = [...Notes, ...filtered_data];
+    }
+    ShowNotesToDOM();
+  });
 };
 function downloadPDF() {
-    if(Notes.length===0){
-        alert("No notes to export");
-        return;
-    }
+  if (Notes.length === 0) {
+    alert("No notes to export");
+    return;
+  }
+  const data = [];
+  
+  chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
     const doc = new jsPDF();
-    const data = [];
-    for(let i=0; i<Notes.length; i++){
-        const note = Notes[i];
-        data.push([note.highlight,note.note]);
+    const activeTab = tabs[0];
+    doc.text(`URL - ${activeTab.url}`,10,10);
+    const filtered_data = Notes.filter((n) => n.url === activeTab.url);
+    for (let i = 0; i < filtered_data.length; i++) {
+      const note = filtered_data[i];
+      data.push([note.highlight, note.note]);
     }
-    autoTable(doc, { html: '#my-table' })
+    autoTable(doc, { html: "#my-table" });
     autoTable(doc, {
-        head: [['Highlight', 'Note']],
-        body: [...data],
-      })
+      head: [["Highlight", "Note"]],
+      body: [...data],
+    });
+
     doc.save("Highlights.pdf");
+  });
+
 }
 
 const TrimString = (s) => {

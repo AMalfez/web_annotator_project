@@ -43,7 +43,7 @@
       filtered_data = currentNotes.filter( n => n.url===url);
     }
     if (filtered_data.length !== 0) {
-      for (let i = 0; i < currentNotes.length; i++) {
+      for (let i = 0; i < filtered_data.length; i++) {
         const props = filtered_data[i].prop;
         let div = document.getElementById(`_id_${filtered_data[i]._id}`);
         if(div) continue;
