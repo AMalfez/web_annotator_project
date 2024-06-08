@@ -6,6 +6,8 @@
   let highlightNote = "";
   let prop = [];
   let url = "";
+  let shortcutString="";
+
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "NEW") {
       newHighlight(message.highlightColor);
@@ -160,6 +162,7 @@
         prop = [];
         NoteInput.style.display = "none";
         note.style.display = "none";
+        window.location.reload();
       });
 
       NoteInput.appendChild(closeIcon);
@@ -401,4 +404,14 @@
     const nd = document.getElementsByClassName("your-note-desc-value")[0];
     nd.innerText = `${highlightNote}`;
   };
+
+    document.addEventListener('keydown',(event)=>{
+      shortcutString+=event.key;
+      if(shortcutString==="ControlShiftH"){
+        event.preventDefault();
+        newHighlight("yellow");
+        shortcutString="";
+        return;
+      }
+    })
 })();
