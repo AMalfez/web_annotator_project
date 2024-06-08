@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 let Notes = [];
+
 const ShowNotesToDOM = () => {
   console.log(Notes);
   const notes_container = document.getElementsByClassName(
@@ -16,9 +17,7 @@ const ShowNotesToDOM = () => {
     console.log(note._id);
     let noteContainer = document.createElement("div");
     noteContainer.classList.add(`highlights`);
-    // noteContainer.classList.add(`time_${note.time}`);
     noteContainer.setAttribute("id", `${note._id}`);
-    // noteContainer.id = "highlights";
     const p = document.createElement("p");
     const innerText = TrimString(note.highlight + " " + "-" + " " + note.note);
     const _ind = innerText.indexOf("-");
@@ -95,7 +94,7 @@ function downloadPDF() {
         head: [['Highlight', 'Note']],
         body: [...data],
       })
-    doc.save("a4.pdf");
+    doc.save("Highlights.pdf");
 }
 
 const TrimString = (s) => {

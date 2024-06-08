@@ -5,7 +5,6 @@
   let highlightTitle = "";
   let highlightNote = "";
   let prop = [];
-  let tab_id="";
   let url = "";
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "NEW") {
@@ -17,6 +16,7 @@
       showHighlightNote();
     }
     if (message.action === "DELETE") deleteHighlight();
+    if(message.action === 'GET_URL') sendResponse(window.location.href);
     if (message.action === "DELETE_NOTE") {
       _id = "" + message._id;
       deleteNote();
@@ -36,15 +36,16 @@
     }
     // alert(url)
     const data = await chrome.storage.sync.get("Notes");
+    currentNotes = [...data.Notes.Notes];
     console.log(data);
+    let filtered_data=[];
     if (data.Notes) {
-      const filtered_data = data.Notes.Notes.filter( n => n.url===url);
-      currentNotes = [...filtered_data];
+      filtered_data = currentNotes.filter( n => n.url===url);
     }
-    if (currentNotes.length !== 0) {
+    if (filtered_data.length !== 0) {
       for (let i = 0; i < currentNotes.length; i++) {
-        const props = currentNotes[i].prop;
-        let div = document.getElementById(`_id_${currentNotes[i]._id}`);
+        const props = filtered_data[i].prop;
+        let div = document.getElementById(`_id_${filtered_data[i]._id}`);
         if(div) continue;
         for (let j = 0; j < props.length; j++) {
           div = document.createElement("div");
@@ -58,11 +59,11 @@
           div.style.height = props[j].height + "px";
           div.style.content = "";
           div.style.zIndex = "500";
-          div.classList.add(`_id_${currentNotes[i]._id}`);
-          div.setAttribute("id", `_id_${currentNotes[i]._id}`);
+          div.classList.add(`_id_${filtered_data[i]._id}`);
+          div.setAttribute("id", `_id_${filtered_data[i]._id}`);
           div.addEventListener("click", () => {
-            highlightNote = currentNotes[i].note;
-            highlightTitle = currentNotes[i].highlight;
+            highlightNote = filtered_data[i].note;
+            highlightTitle = filtered_data[i].highlight;
             showHighlightNote();
           });
           document.querySelector("body").appendChild(div);
@@ -72,8 +73,9 @@
   };
   displayLoadedhighlights();
 
-  const updateStorage = () => {
-    const Notes = { Notes: currentNotes };
+  const updateStorage = async() => {
+    // const data = await chrome.storage.sync.get("Notes");
+    let Notes = {Notes: currentNotes};
     chrome.storage.sync.set({ Notes });
   };
 

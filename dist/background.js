@@ -3,8 +3,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       chrome.scripting
         .executeScript({
           target: { tabId },
-          files: ["./contentScript.js"],
-          args: [getCurrentTab()]
+          files: ["./contentScript.js"]
         })
         .then(() => {
           console.log("we have injected the content script");
@@ -24,11 +23,4 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       });
     }
   });
-
-  async function getCurrentTab() {
-    let queryOptions = { active: true, lastFocusedWindow: true };
-    // `tab` will either be a `tabs.Tab` instance or `undefined`.
-    let [tab] = await chrome.tabs.query(queryOptions);
-    return tab;
-  }
   
