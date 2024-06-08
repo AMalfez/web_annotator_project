@@ -86,10 +86,7 @@ const fetchNotes = async () => {
   });
 };
 function downloadPDF() {
-  if (Notes.length === 0) {
-    alert("No notes to export");
-    return;
-  }
+  
   const data = [];
   
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
@@ -97,6 +94,10 @@ function downloadPDF() {
     const activeTab = tabs[0];
     doc.text(`URL - ${activeTab.url}`,10,10);
     const filtered_data = Notes.filter((n) => n.url === activeTab.url);
+    if (filtered_data.length === 0) {
+      alert("No notes to export");
+      return;
+    }
     for (let i = 0; i < filtered_data.length; i++) {
       const note = filtered_data[i];
       data.push([note.highlight, note.note]);
