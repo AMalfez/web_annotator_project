@@ -38,10 +38,10 @@
     }
     // alert(url)
     const data = await chrome.storage.sync.get("Notes");
-    currentNotes = [...data.Notes.Notes];
-    console.log(data);
+    if(data.Notes) currentNotes = [...data.Notes.Notes];
+    // console.log(data);
     let filtered_data=[];
-    if (data.Notes) {
+    if (currentNotes.length>0) {
       filtered_data = currentNotes.filter( n => n.url===url);
     }
     if (filtered_data.length !== 0) {
@@ -405,13 +405,88 @@
     nd.innerText = `${highlightNote}`;
   };
 
+  const ShowNoteSearchBar=(filtered_data)=>{
+    let searchBar = document.getElementsByClassName('highlighted-notes-filter-bar-annotator')[0];
+    if(searchBar) return;
+    else{
+      searchBar = document.createElement('div');
+      searchBar.style.display = "flex";
+      searchBar.style.position = "fixed";
+      searchBar.style.top = '30px';
+      searchBar.style.right = "50px";
+      searchBar.style.minHeight = "50px";
+      searchBar.style.minWidth = "250px";
+      searchBar.style.boxShadow = "0 0 30px 10px rgba(0, 0, 0, 0.2)";
+      searchBar.style.zIndex = "5000";
+      searchBar.style.borderRadius = "10px";
+      searchBar.style.backgroundColor = "white";
+      searchBar.style.padding = "4px";
+      searchBar.style.alignItem = "center";
+      searchBar.style.justifyContent = "center";
+      searchBar.classList.add("highlighted-notes-filter-bar-annotator");
+
+      const inputElem = document.createElement('input');
+      inputElem.style.border = "0";
+      inputElem.style.color = "grey";
+      inputElem.placeholder = "Search highlights..."
+      inputElem.style.borderRight = "1px solid black";
+      inputElem.style.flex = "0.9";
+      inputElem.style.paddingRight = "3px";
+      inputElem.style.margin = "auto";
+      inputElem.style.outline = "none";
+      if(filtered_data.length===0){
+        inputElem.style.pointerEvents = "none";
+        inputElem.placeholder = "No notes to filter";
+      }
+      inputElem.addEventListener("change",(e)=>{
+        e.preventDefault();
+        // alert(e.target.value)
+        let _id;
+        const data = filtered_data.filter(n => (n.highlight).toLowerCase() === (e.target.value).toLowerCase());
+        if(data) _id = data[0]._id; 
+        // alert(_id)
+        if(!_id){
+          return;
+        }
+        const elem = document.getElementById(`_id_${_id}`);
+        elem.scrollIntoView();
+      })
+
+      const closeElem = document.createElement("div");
+      closeElem.innerText = "X";
+      closeElem.style.flex = "0.1";
+      closeElem.style.display = "flex";
+      closeElem.style.padding="0";
+      closeElem.style.margin="auto";
+      closeElem.style.height = "fit-content";
+      closeElem.style.justifyContent = "center";
+      closeElem.style.alignItem = "center";
+      closeElem.style.cursor = "pointer";
+      closeElem.addEventListener("click",()=>{
+        document.body.removeChild(searchBar);
+        window.location.reload();
+      })
+
+      searchBar.appendChild(inputElem);
+      searchBar.appendChild(closeElem);
+
+      document.body.appendChild(searchBar);
+    }
+  }
+
     document.addEventListener('keydown',(event)=>{
       shortcutString+=event.key;
       if(shortcutString==="ControlShiftH"){
         event.preventDefault();
         newHighlight("yellow");
         shortcutString="";
-        return;
+      }
+      else if(shortcutString==="ControlShiftF"){
+        event.preventDefault();
+        let filtered_data = [];
+        if(currentNotes.length>0) filtered_data = currentNotes.filter( n => n.url===window.location.href);
+        ShowNoteSearchBar(filtered_data);
+        shortcutString="";
       }
     })
 })();
